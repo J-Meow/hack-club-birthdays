@@ -72,7 +72,7 @@ Bun.serve({
                 return Response.redirect(loginURL)
             }
             const bdays =
-                await sql`SELECT "id", "name", "pfp", "bday_month", "bday_day" FROM users WHERE bday_month=${req.params.month}`
+                await sql`SELECT "id", "name", "pfp", "bday_month", "bday_day", "channel_name", "channel_id" FROM users WHERE bday_month=${req.params.month}`
             return Response.json(bdays)
         },
         "/logout": () => {

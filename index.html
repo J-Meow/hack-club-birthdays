@@ -556,6 +556,24 @@
                                                     a.target = "_blank"
                                                     li.appendChild(img)
                                                     li.appendChild(a)
+                                                    if (
+                                                        user.channel_id &&
+                                                        user.channel_name
+                                                    ) {
+                                                        li.append(" - ")
+                                                        const a2 =
+                                                            document.createElement(
+                                                                "a",
+                                                            )
+                                                        a2.innerText =
+                                                            "#" +
+                                                            user.channel_name
+                                                        a2.href =
+                                                            "https://hackclub.enterprise.slack.com/archives/" +
+                                                            user.channel_id
+                                                        a2.target = "_blank"
+                                                        li.appendChild(a2)
+                                                    }
                                                     document
                                                         .querySelector(
                                                             "#day-popup-background ul",
