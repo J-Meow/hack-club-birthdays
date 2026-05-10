@@ -39,27 +39,60 @@ Bun.serve({
             const body = (await req.body!.json()) as {
                 month: number | null
                 day: number | null
+                channel: number | null
             }
             if (!body.month || !body.day) {
-                await sql`UPDATE users SET "bday_day"=NULL, "bday_month"=NULL WHERE "id"=${jwtData.id}`
+                await sql`UPDATE users SET "bday_day"=NULL, "bday_month"=NULL, "channel_name"=NULL, "channel_id"=NULL WHERE "id"=${jwtData.id}`
             } else {
                 const birthdayDate = new Date(2000, body.month, body.day)
-                await sql`UPDATE users SET "bday_day"=${birthdayDate.getDate()}, "bday_month"=${birthdayDate.getMonth()} WHERE "id"=${jwtData.id}`
+                let channelName, channelId
+                if (body.channel) {
+                    const channelInfo = (await (
+                        await fetch(
+                            "https://slack.com/api/conversations.info?channel=" +
+                                body.channel,
+                            {
+                                headers: {
+                                    Authorization:
+                                        "Bearer " + process.env.SLACK_XOXB,
+                                },
+                            },
+                        )
+                    ).json()) as {
+                        ok: boolean
+                        channel: {
+                            name: string
+                            is_channel: boolean
+                            is_private: boolean
+                        }
+                    }
+                    if (
+                        channelInfo.ok &&
+                        channelInfo.channel.is_channel &&
+                        !channelInfo.channel.is_private
+                    ) {
+                        channelName = channelInfo.channel.name
+                        channelId = body.channel
+                    }
+                }
+                await sql`UPDATE users SET "bday_day"=${birthdayDate.getDate()}, "bday_month"=${birthdayDate.getMonth()}, "channel_name"=${channelName}, "channel_id"=${channelId} WHERE "id"=${jwtData.id}`
             }
             return new Response(null)
         },
         "/auth/me": async (req) => {
             try {
                 let jwtData = requireAuth(req)
-                let bdayInfo = (
-                    await sql`SELECT "bday_month", "bday_day" FROM users WHERE id=${jwtData.id}`
+                let info = (
+                    await sql`SELECT "bday_month", "bday_day", "channel_name", "channel_id" FROM users WHERE id=${jwtData.id}`
                 )[0]
                 return Response.json({
                     id: jwtData.id,
                     name: jwtData.name,
                     pfp: jwtData.pfp,
-                    bdayMonth: bdayInfo.bday_month,
-                    bdayDay: bdayInfo.bday_day,
+                    bdayMonth: info.bday_month,
+                    bdayDay: info.bday_day,
+                    channelId: info.channel_id,
+                    channelName: info.channel_name,
                 })
             } catch (_) {
                 return Response.redirect(loginURL)

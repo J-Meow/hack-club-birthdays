@@ -170,6 +170,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
+                width: 300px;
             }
             #edit-popup form {
                 display: flex;
@@ -427,6 +428,8 @@
                     <label for="day-select">Day: </label
                     ><input id="day-select" type="number" min="1" max="31" />
                 </div>
+                <label for="channel-select">Channel ID (Not name):</label>
+                <div><input id="channel-select" type="text" /></div>
                 <input type="submit" value="Save" />
             </form>
         </div>
@@ -468,6 +471,8 @@
                         authData.bdayMonth ? authData.bdayMonth : ""
                     document.querySelector("#day-select").value =
                         authData.bdayDay ? authData.bdayDay : ""
+                    document.querySelector("#channel-select").value =
+                        authData.channelId
                 })
             let currentDate = new Date()
             let year = currentDate.getFullYear()
@@ -672,6 +677,8 @@
                             document.getElementById("day-select").value,
                         )
                     }
+                    payload.channel =
+                        document.getElementById("channel-select").value
                     fetch("/birthday", {
                         method: "POST",
                         body: JSON.stringify(payload),
