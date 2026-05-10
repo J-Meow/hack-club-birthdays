@@ -5,7 +5,9 @@ const sql = new SQL()
 const loginURL =
     "https://auth.hackclub.com/oauth/authorize?client_id=" +
     process.env.HCA_CLIENT_ID +
-    "&redirect_uri=http://localhost:3000/auth/callback&response_type=code&scope=slack_id"
+    "&redirect_uri=" +
+    process.env.HCA_REDIRECT_HOST +
+    "/auth/callback&response_type=code&scope=slack_id"
 function requireAuth(req: Bun.BunRequest) {
     let jwtData: { id: string; name: string; pfp: string }
     if (!req.cookies.get("bday-token")) throw null
@@ -41,7 +43,7 @@ Bun.serve({
                 day: number | null
                 channel: number | null
             }
-            if (!body.month || !body.day) {
+            if (body.month === null || body.day === null) {
                 await sql`UPDATE users SET "bday_day"=NULL, "bday_month"=NULL, "channel_name"=NULL, "channel_id"=NULL WHERE "id"=${jwtData.id}`
             } else {
                 const birthdayDate = new Date(2000, body.month, body.day)
@@ -127,7 +129,8 @@ Bun.serve({
                     body: JSON.stringify({
                         client_id: process.env.HCA_CLIENT_ID,
                         client_secret: process.env.HCA_CLIENT_SECRET,
-                        redirect_uri: "http://localhost:3000/auth/callback",
+                        redirect_uri:
+                            process.env.HCA_REDIRECT_HOST + "/auth/callback",
                         grant_type: "authorization_code",
                         code,
                     }),
@@ -143,7 +146,6 @@ Bun.serve({
                     })
                 ).json()) as { identity: { slack_id: string } }
             ).identity.slack_id
-            console.log(slackId)
             if (!slackId) return Response.redirect("/")
             const slackInfo = (await (
                 await fetch(
@@ -165,7 +167,6 @@ Bun.serve({
             ) {
                 return Response.redirect("/")
             }
-            console.log(slackInfo.user.profile.display_name)
             const token = jwt.sign(
                 {
                     id: slackId,
@@ -189,4 +190,3 @@ Bun.serve({
         },
     },
 })
-

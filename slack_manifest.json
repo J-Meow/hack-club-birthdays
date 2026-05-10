@@ -1,0 +1,23 @@
+{
+    "display_information": {
+        "name": "Hack Club Birthdays"
+    },
+    "features": {
+        "bot_user": {
+            "display_name": "Hack Club Birthdays",
+            "always_online": false
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": ["channels:read", "users:read"]
+        },
+        "pkce_enabled": false
+    },
+    "settings": {
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false,
+        "is_mcp_enabled": false
+    }
+}
