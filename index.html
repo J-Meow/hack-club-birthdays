@@ -57,13 +57,16 @@
                 border-radius: 10px;
                 overflow: hidden;
                 border: 1px solid #8492a655;
-                cursor: pointer;
+                cursor: default;
                 transition:
                     0.2s ease-out transform,
                     0.2s ease-out box-shadow;
                 box-shadow: 0 0 0 0 #8492a655;
             }
-            td:hover {
+            td.has-bday {
+                cursor: pointer;
+            }
+            td.has-bday:hover {
                 transform: translateY(-3px);
                 box-shadow: 0 5px 15px 0 #8492a655;
             }
@@ -213,6 +216,87 @@
                 border: none;
                 pointer-events: none;
             }
+            #day-popup-background {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100vw;
+                height: 100vh;
+                background: #000c;
+                z-index: 1000;
+                display: flex;
+                overflow: scroll;
+                pointer-events: none;
+                opacity: 0;
+                transition: ease-out opacity 0.2s;
+            }
+            #day-popup-background.show {
+                pointer-events: all;
+                opacity: 1;
+            }
+            #day-popup {
+                margin: 150px auto;
+                max-width: 400px;
+                width: 100%;
+                background: white;
+                min-height: 500px;
+                height: max-content;
+                border-radius: 20px;
+                box-shadow: 0 5px 15px 0 #0005;
+                overflow: hidden;
+                opacity: 0;
+                transform: translateY(10px);
+                transition:
+                    ease-out opacity 0.2s,
+                    ease-out transform 0.2s;
+            }
+            #day-popup-background.show #day-popup {
+                opacity: 1;
+                transform: none;
+            }
+            #day-popup .top {
+                width: 100%;
+                display: flex;
+                background: #ec3750;
+                color: white;
+                padding: 20px;
+                flex-direction: row;
+            }
+            #day-popup h2 {
+                margin: 0;
+                line-height: 35px;
+                height: 35px;
+            }
+            #day-popup .top button {
+                background: none;
+                cursor: pointer;
+                border: none;
+                margin: 0;
+                margin-left: auto;
+                padding: 0;
+                width: 35px;
+                height: 35px;
+            }
+            #day-popup .top button svg {
+                width: 35px;
+                height: 35px;
+            }
+            #day-popup li {
+                line-height: 18px;
+                height: 26px;
+            }
+            #day-popup li img {
+                width: 18px;
+                height: 18px;
+                border-radius: 2px;
+                display: inline-block;
+                margin-right: 4px;
+                transform: translateY(5px);
+            }
+            #day-popup li a {
+                color: #338eda;
+                display: inline-block;
+            }
         </style>
     </head>
     <body>
@@ -313,6 +397,33 @@
                 <input type="submit" value="Update" />
             </form>
         </div>
+        <div id="day-popup-background">
+            <div id="day-popup">
+                <div class="top">
+                    <h2></h2>
+                    <button id="close-day-popup">
+                        <svg
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            stroke-linejoin="round"
+                            stroke-miterlimit="1.414"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-label="view-close"
+                            viewBox="0 0 32 32"
+                            preserveAspectRatio="xMidYMid meet"
+                            fill="#fff"
+                            width="256"
+                            height="256"
+                        >
+                            <path
+                                d="M11.121,9.707c-0.39,-0.391 -1.024,-0.391 -1.414,0c-0.391,0.39 -0.391,1.024 0,1.414l4.95,4.95l-4.95,4.95c-0.391,0.39 -0.391,1.023 0,1.414c0.39,0.39 1.024,0.39 1.414,0l4.95,-4.95l4.95,4.95c0.39,0.39 1.023,0.39 1.414,0c0.39,-0.391 0.39,-1.024 0,-1.414l-4.95,-4.95l4.95,-4.95c0.39,-0.39 0.39,-1.024 0,-1.414c-0.391,-0.391 -1.024,-0.391 -1.414,0l-4.95,4.95l-4.95,-4.95Z"
+                            />
+                        </svg>
+                    </button>
+                </div>
+                <ul></ul>
+            </div>
+        </div>
         <script>
             fetch("/auth/me")
                 .then((x) => x.json())
@@ -347,7 +458,7 @@
                     tdElementsAdded++
                 }
                 for (let i = 0; i < lastOfMonth.getDate(); i++) {
-                    newHTML += `<td role="button" id="day-${i + 1}"${year == today.getFullYear() && monthIndex == today.getMonth() && i + 1 == today.getDate() ? ' class="today"' : ""}><div><span>${i + 1}</span><div class="pfps"><span class="loading">Loading...</span><span class="no-birthday">No birthdays here yet!</span></div></div></td>`
+                    newHTML += `<td id="day-${i + 1}"${year == today.getFullYear() && monthIndex == today.getMonth() && i + 1 == today.getDate() ? ' class="today"' : ""}><div><span>${i + 1}</span><div class="pfps"><span class="loading">Loading...</span><span class="no-birthday">No birthdays here yet!</span></div></div></td>`
                     tdElementsAdded++
                     if (tdElementsAdded == 7) {
                         newHTML += "</tr><tr>"
@@ -371,6 +482,72 @@
                                 const dayElement = document.querySelector(
                                     "#day-" + birthday.bday_day + " .pfps",
                                 )
+                                const dayContainer =
+                                    dayElement.parentElement.parentElement
+                                if (
+                                    !dayContainer.classList.contains("has-bday")
+                                ) {
+                                    dayContainer.classList.add("has-bday")
+                                    dayContainer.role = "button"
+                                    dayContainer.addEventListener(
+                                        "click",
+                                        () => {
+                                            document.querySelector(
+                                                "#day-popup-background ul",
+                                            ).innerHTML = ""
+                                            bdays
+                                                .filter(
+                                                    (x) =>
+                                                        x.bday_day ==
+                                                        birthday.bday_day,
+                                                )
+                                                .forEach((user) => {
+                                                    const li =
+                                                        document.createElement(
+                                                            "li",
+                                                        )
+                                                    const img =
+                                                        document.createElement(
+                                                            "img",
+                                                        )
+                                                    img.src = user.pfp
+                                                    const a =
+                                                        document.createElement(
+                                                            "a",
+                                                        )
+                                                    a.innerText =
+                                                        "@" + user.name
+                                                    a.href =
+                                                        "https://hackclub.enterprise.slack.com/team/" +
+                                                        user.id
+                                                    a.target = "_blank"
+                                                    li.appendChild(img)
+                                                    li.appendChild(a)
+                                                    document
+                                                        .querySelector(
+                                                            "#day-popup-background ul",
+                                                        )
+                                                        .appendChild(li)
+                                                })
+                                            document.querySelector(
+                                                "#day-popup-background h2",
+                                            ).innerText =
+                                                firstOfMonth.toLocaleDateString(
+                                                    "en-US",
+                                                    {
+                                                        month: "long",
+                                                    },
+                                                ) +
+                                                " " +
+                                                birthday.bday_day
+                                            document
+                                                .getElementById(
+                                                    "day-popup-background",
+                                                )
+                                                .classList.add("show")
+                                        },
+                                    )
+                                }
                                 const bdayElement =
                                     document.createElement("img")
                                 bdayElement.src = birthday.pfp
@@ -402,6 +579,25 @@
                         year++
                     }
                     renderMonth()
+                })
+            document
+                .getElementById("day-popup")
+                .addEventListener("click", (ev) => {
+                    ev.stopPropagation()
+                })
+            document
+                .getElementById("day-popup-background")
+                .addEventListener("click", (ev) => {
+                    document
+                        .getElementById("day-popup-background")
+                        .classList.remove("show")
+                })
+            document
+                .getElementById("close-day-popup")
+                .addEventListener("click", (ev) => {
+                    document
+                        .getElementById("day-popup-background")
+                        .classList.remove("show")
                 })
             document
                 .getElementById("my-birthday")
