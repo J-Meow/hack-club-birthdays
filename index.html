@@ -167,6 +167,38 @@
                     ease-out opacity 0.2s,
                     ease-out transform 0.2s;
                 pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            #edit-popup form {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            #edit-popup form select,
+            #edit-popup form input {
+                background: white;
+                border: 1px solid #8492a6;
+                border-radius: 10px;
+                font: inherit;
+                padding: 5px;
+                width: 100%;
+            }
+            #edit-popup form label {
+                width: 100%;
+            }
+            #edit-popup form input[type="submit"] {
+                cursor: pointer;
+            }
+            #edit-popup form input[type="submit"]:hover {
+                background: #0001;
+            }
+            #edit-popup form div {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
             }
             #edit-popup.show {
                 opacity: 1;
@@ -175,9 +207,6 @@
             }
             #edit-popup h2 {
                 margin: 0;
-            }
-            select {
-                font: inherit;
             }
             #calendarcontainer .pfps {
                 display: flex;
@@ -374,27 +403,31 @@
         <button id="my-birthday">My Birthday</button>
         <div id="auth"><img id="pfp" /><span>Loading...</span></div>
         <div id="edit-popup">
-            <h2>Edit My Birthday</h2>
+            <h2>Update Birthday</h2>
             <form id="update-bday">
-                <label for="month-select">Month: </label
-                ><select id="month-select">
-                    <option value="">Unset</option>
-                    <option value="0">January</option>
-                    <option value="1">February</option>
-                    <option value="2">March</option>
-                    <option value="3">April</option>
-                    <option value="4">May</option>
-                    <option value="5">June</option>
-                    <option value="6">July</option>
-                    <option value="7">August</option>
-                    <option value="8">September</option>
-                    <option value="9">October</option>
-                    <option value="10">November</option>
-                    <option value="11">December</option>
-                </select>
-                <label for="day-select">Day: </label
-                ><input id="day-select" type="number" min="1" max="31" />
-                <input type="submit" value="Update" />
+                <div>
+                    <label for="month-select">Month: </label
+                    ><select id="month-select">
+                        <option value="">Unset</option>
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="day-select">Day: </label
+                    ><input id="day-select" type="number" min="1" max="31" />
+                </div>
+                <input type="submit" value="Save" />
             </form>
         </div>
         <div id="day-popup-background">
