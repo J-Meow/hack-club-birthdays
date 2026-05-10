@@ -1,0 +1,435 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Birthdays</title>
+        <meta charset="utf-8" />
+        <style>
+            @font-face {
+                font-family: "Phantom Sans";
+                src:
+                    url("https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Regular.woff")
+                        format("woff"),
+                    url("https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Regular.woff2")
+                        format("woff2");
+                font-weight: normal;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: "Phantom Sans";
+                src:
+                    url("https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Italic.woff")
+                        format("woff"),
+                    url("https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Italic.woff2")
+                        format("woff2");
+                font-weight: normal;
+                font-style: italic;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: "Phantom Sans";
+                src:
+                    url("https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Bold.woff")
+                        format("woff"),
+                    url("https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Bold.woff2")
+                        format("woff2");
+                font-weight: bold;
+                font-style: normal;
+                font-display: swap;
+            }
+            html {
+                font-family: "Phantom Sans", sans-serif;
+            }
+            body {
+                margin: 0;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            h1 {
+                text-align: center;
+                margin: 30px 0;
+            }
+            td {
+                width: 100px;
+                height: 100px;
+                padding: 0;
+                border-radius: 10px;
+                overflow: hidden;
+                border: 1px solid #8492a655;
+                cursor: pointer;
+                transition:
+                    0.2s ease-out transform,
+                    0.2s ease-out box-shadow;
+                box-shadow: 0 0 0 0 #8492a655;
+            }
+            td:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px 0 #8492a655;
+            }
+            td > div > span {
+                display: block;
+                height: 30px;
+                padding-left: 10px;
+                line-height: 30px;
+            }
+            td > div {
+                width: 100px;
+                height: 100px;
+                display: flex;
+                flex-direction: column;
+            }
+            #nav {
+                display: flex;
+                flex-direction: row;
+                width: 100vw;
+                justify-content: center;
+                height: 40px;
+                align-items: center;
+            }
+            #nav h2 {
+                text-align: center;
+                margin: 0;
+                min-width: 200px;
+            }
+            #nav button {
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
+                background: none;
+                border: none;
+                outline: none;
+                display: flex;
+                padding: 0;
+                margin: 0;
+                border-radius: 20px;
+            }
+            #nav button:hover {
+                background: #8492a655;
+            }
+            #nav button svg {
+                width: 30px;
+                height: 30px;
+                margin: auto;
+            }
+            #calendarcontainer {
+                width: 100%;
+                display: flex;
+                height: 100%;
+                margin-top: 30px;
+            }
+            table {
+                margin: 0 auto;
+                border-spacing: 10px;
+            }
+            #auth {
+                position: fixed;
+                right: 10px;
+                top: 10px;
+                height: 30px;
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+                align-items: center;
+            }
+            #auth img {
+                height: 30px;
+                width: 30px;
+                border-radius: 15px;
+            }
+            #my-birthday {
+                position: fixed;
+                right: 10px;
+                top: 50px;
+                background: none;
+                margin: 0;
+                padding: 0;
+                color: #338eda;
+                text-decoration: underline;
+                cursor: pointer;
+                border: none;
+                font: inherit;
+            }
+            #edit-popup {
+                position: fixed;
+                right: 10px;
+                top: 80px;
+                background: white;
+                padding: 20px;
+                border-radius: 20px;
+                box-shadow: 0 5px 15px 0 #8492a6;
+                opacity: 0;
+                transform: translateY(10px);
+                transition:
+                    ease-out opacity 0.2s,
+                    ease-out transform 0.2s;
+                pointer-events: none;
+            }
+            #edit-popup.show {
+                opacity: 1;
+                transform: none;
+                pointer-events: all;
+            }
+            #edit-popup h2 {
+                margin: 0;
+            }
+            select {
+                font: inherit;
+            }
+            #calendarcontainer .pfps {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-height: 70px;
+                overflow-y: scroll;
+                padding: 0 10px;
+                padding-bottom: 10px;
+            }
+            .pfps img {
+                width: 18px;
+                height: 18px;
+                margin: 1px;
+                border-radius: 2px;
+            }
+            #calendarcontainer.loading .loading {
+                opacity: 0.4;
+            }
+            #calendarcontainer:not(.loading) .loading {
+                display: none;
+            }
+            .no-birthday {
+                opacity: 0.4;
+            }
+            #calendarcontainer.loading .no-birthday,
+            #calendarcontainer:not(.loading) .no-birthday:not(:last-child) {
+                display: none;
+            }
+            .today {
+                background: #ec3750;
+                color: white;
+                border: 1px solid #ec3750;
+            }
+            td.nothing {
+                border: none;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="https://hackclub.com/"
+            ><img
+                style="
+                    position: fixed;
+                    top: 0;
+                    left: 10px;
+                    border: 0;
+                    width: 128px;
+                    z-index: 999;
+                "
+                src="https://assets.hackclub.com/flag-orpheus-top.svg"
+                alt="Hack Club"
+        /></a>
+        <h1>Hack Club Birthdays</h1>
+        <div id="nav">
+            <button id="prevmonth">
+                <svg
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    stroke-linejoin="round"
+                    stroke-miterlimit="1.414"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="view-back"
+                    viewBox="0 0 32 32"
+                    preserveAspectRatio="xMidYMid meet"
+                    fill="currentColor"
+                    width="256"
+                    height="256"
+                >
+                    <path
+                        d="M19.768,23.89c0.354,-0.424 0.296,-1.055 -0.128,-1.408c-1.645,-1.377 -5.465,-4.762 -6.774,-6.482c1.331,-1.749 5.1,-5.085 6.774,-6.482c0.424,-0.353 0.482,-0.984 0.128,-1.408c-0.353,-0.425 -0.984,-0.482 -1.409,-0.128c-1.839,1.532 -5.799,4.993 -7.2,6.964c-0.219,0.312 -0.409,0.664 -0.409,1.054c0,0.39 0.19,0.742 0.409,1.053c1.373,1.932 5.399,5.462 7.2,6.964l0.001,0.001c0.424,0.354 1.055,0.296 1.408,-0.128Z"
+                    />
+                </svg>
+            </button>
+            <h2 id="month"></h2>
+            <button id="nextmonth">
+                <svg
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    stroke-linejoin="round"
+                    stroke-miterlimit="1.414"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="view-forward"
+                    viewBox="0 0 32 32"
+                    preserveAspectRatio="xMidYMid meet"
+                    fill="currentColor"
+                    width="256"
+                    height="256"
+                >
+                    <path
+                        d="M12.982,23.89c-0.354,-0.424 -0.296,-1.055 0.128,-1.408c1.645,-1.377 5.465,-4.762 6.774,-6.482c-1.331,-1.749 -5.1,-5.085 -6.774,-6.482c-0.424,-0.353 -0.482,-0.984 -0.128,-1.408c0.353,-0.425 0.984,-0.482 1.409,-0.128c1.839,1.532 5.799,4.993 7.2,6.964c0.219,0.312 0.409,0.664 0.409,1.054c0,0.39 -0.19,0.742 -0.409,1.053c-1.373,1.932 -5.399,5.462 -7.2,6.964l-0.001,0.001c-0.424,0.354 -1.055,0.296 -1.408,-0.128Z"
+                    />
+                </svg>
+            </button>
+        </div>
+        <div id="calendarcontainer">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sunday</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                    </tr>
+                </thead>
+                <tbody id="calendar"></tbody>
+            </table>
+        </div>
+        <button id="my-birthday">My Birthday</button>
+        <div id="auth"><img id="pfp" /><span>Loading...</span></div>
+        <div id="edit-popup">
+            <h2>Edit My Birthday</h2>
+            <form id="update-bday">
+                <label for="month-select">Month: </label
+                ><select id="month-select">
+                    <option value="">Unset</option>
+                    <option value="0">January</option>
+                    <option value="1">February</option>
+                    <option value="2">March</option>
+                    <option value="3">April</option>
+                    <option value="4">May</option>
+                    <option value="5">June</option>
+                    <option value="6">July</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">October</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+                <label for="day-select">Day: </label
+                ><input id="day-select" type="number" min="1" max="31" />
+                <input type="submit" value="Update" />
+            </form>
+        </div>
+        <script>
+            fetch("/auth/me")
+                .then((x) => x.json())
+                .then((authData) => {
+                    document.querySelector("#pfp").src = authData.pfp
+                    document.querySelector("#auth span").innerText =
+                        "@" + authData.name
+                    document.querySelector("#month-select").value =
+                        authData.bdayMonth ? authData.bdayMonth : ""
+                    document.querySelector("#day-select").value =
+                        authData.bdayDay ? authData.bdayDay : ""
+                })
+            let currentDate = new Date()
+            let year = currentDate.getFullYear()
+            let monthIndex = currentDate.getMonth()
+            const calendar = document.getElementById("calendar")
+            let bdays = []
+            function renderMonth() {
+                const firstOfMonth = new Date(year, monthIndex)
+                document.querySelector("#month").innerText =
+                    firstOfMonth.toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                    })
+                const lastOfMonth = new Date(year, monthIndex + 1, 0)
+                const today = new Date()
+                calendar.innerHTML = ""
+                let newHTML = "<tr>"
+                let tdElementsAdded = 0
+                for (let i = 0; i < firstOfMonth.getDay(); i++) {
+                    newHTML += '<td class="nothing"></td>'
+                    tdElementsAdded++
+                }
+                for (let i = 0; i < lastOfMonth.getDate(); i++) {
+                    newHTML += `<td role="button" id="day-${i + 1}"${year == today.getFullYear() && monthIndex == today.getMonth() && i + 1 == today.getDate() ? ' class="today"' : ""}><div><span>${i + 1}</span><div class="pfps"><span class="loading">Loading...</span><span class="no-birthday">No birthdays here yet!</span></div></div></td>`
+                    tdElementsAdded++
+                    if (tdElementsAdded == 7) {
+                        newHTML += "</tr><tr>"
+                        tdElementsAdded = 0
+                    }
+                }
+                newHTML += "</tr>"
+                document
+                    .getElementById("calendarcontainer")
+                    .classList.add("loading")
+                calendar.innerHTML = newHTML
+                let monthShowing = monthIndex
+                fetch("/month/" + monthIndex)
+                    .then((x) => x.json())
+                    .then((birthdays) => {
+                        if (monthIndex !== monthShowing) return
+                        bdays = birthdays
+                        console.log(bdays)
+                        bdays.forEach((birthday) => {
+                            try {
+                                const dayElement = document.querySelector(
+                                    "#day-" + birthday.bday_day + " .pfps",
+                                )
+                                const bdayElement =
+                                    document.createElement("img")
+                                bdayElement.src = birthday.pfp
+                                dayElement.appendChild(bdayElement)
+                            } catch (_) {}
+                        })
+                        document
+                            .getElementById("calendarcontainer")
+                            .classList.remove("loading")
+                    })
+            }
+            renderMonth()
+            document
+                .getElementById("prevmonth")
+                .addEventListener("click", () => {
+                    monthIndex--
+                    if (monthIndex < 0) {
+                        monthIndex += 12
+                        year--
+                    }
+                    renderMonth()
+                })
+            document
+                .getElementById("nextmonth")
+                .addEventListener("click", () => {
+                    monthIndex++
+                    if (monthIndex > 11) {
+                        monthIndex -= 12
+                        year++
+                    }
+                    renderMonth()
+                })
+            document
+                .getElementById("my-birthday")
+                .addEventListener("click", (ev) => {
+                    document
+                        .getElementById("edit-popup")
+                        .classList.toggle("show")
+                })
+            document
+                .getElementById("update-bday")
+                .addEventListener("submit", (ev) => {
+                    ev.preventDefault()
+                    let payload = {}
+                    if (document.getElementById("month-select").value) {
+                        payload.month = parseInt(
+                            document.getElementById("month-select").value,
+                        )
+                    }
+                    if (document.getElementById("day-select").value) {
+                        payload.day = parseInt(
+                            document.getElementById("day-select").value,
+                        )
+                    }
+                    fetch("/birthday", {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                    }).then(() => location.reload())
+                })
+        </script>
+    </body>
+</html>
