@@ -330,6 +330,25 @@
                 color: #338eda;
                 display: inline-block;
             }
+            @media (prefers-color-scheme: dark) {
+                html,
+                #day-popup {
+                    background: #17171d;
+                    color: white;
+                }
+                #edit-popup {
+                    background: #17171d;
+                    box-shadow: 0 5px 15px 0 black;
+                }
+                #edit-popup form select,
+                #edit-popup form input {
+                    background: #17171d;
+                    color: white;
+                }
+                #nav svg {
+                    filter: invert(1);
+                }
+            }
         </style>
     </head>
     <body>
@@ -517,7 +536,6 @@
                     .then((birthdays) => {
                         if (monthIndex !== monthShowing) return
                         bdays = birthdays
-                        console.log(bdays)
                         bdays.forEach((birthday) => {
                             try {
                                 const dayElement = document.querySelector(
