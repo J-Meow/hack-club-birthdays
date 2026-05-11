@@ -43,7 +43,10 @@ Bun.serve({
                 day: number | null
                 channel: number | null
             }
-            if (body.month === null || body.day === null) {
+            if (
+                typeof body.month !== "number" ||
+                typeof body.day !== "number"
+            ) {
                 await sql`UPDATE users SET "bday_day"=NULL, "bday_month"=NULL, "channel_name"=NULL, "channel_id"=NULL WHERE "id"=${jwtData.id}`
             } else {
                 const birthdayDate = new Date(2000, body.month, body.day)
