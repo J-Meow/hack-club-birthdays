@@ -123,6 +123,7 @@
                 height: 100%;
                 margin-top: 30px;
                 overflow-x: scroll;
+                scrollbar-width: none;
             }
             table {
                 margin: 0 auto;
@@ -220,6 +221,7 @@
                 overflow-y: scroll;
                 padding: 0 10px;
                 padding-bottom: 10px;
+                scrollbar-width: 0;
             }
             .pfps img {
                 width: 18px;
@@ -259,6 +261,7 @@
                 z-index: 1000;
                 display: flex;
                 overflow: scroll;
+                scrollbar-width: 0;
                 pointer-events: none;
                 opacity: 0;
                 transition: ease-out opacity 0.2s;
@@ -348,6 +351,11 @@
                 #nav svg {
                     filter: invert(1);
                 }
+            }
+            #calendarcontainer .pfps::-webkit-scrollbar,
+            #calendarcontainer::-webkit-scrollbar {
+                width: 0px;
+                background: transparent;
             }
         </style>
     </head>
